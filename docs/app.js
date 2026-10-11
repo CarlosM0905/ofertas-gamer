@@ -27,6 +27,7 @@ async function load() {
   const agoTxt = ago < 60 ? `hace ${ago} min` : `hace ${Math.round(ago / 60)} h`;
   $('#meta').textContent = `Actualizado ${agoTxt} · US$1 = S/${data.rates.USD} · ¥100 = S/${data.rates.JPY}`;
   render();
+  openFromHash();
 }
 
 function filtered() {
@@ -59,7 +60,7 @@ function card(d, i) {
       <div class="badges"><span class="plat ${d.plat}">${esc(d.platLabel)}</span><span class="score ${scoreClass(d.score)}">${d.score ?? '—'}</span></div>
     </div>
     <div class="body">
-      <div class="title">${esc(d.title)}</div>
+      <div class="title">${esc(d.title)}</div>${d.titleJp ? `<div class="jp">${esc(d.titleJp)}</div>` : ''}
       <div class="price"><span class="now">${money(d.pen)}</span><s>${money(d.penRegular)}</s><span class="cut">-${d.cut}%</span></div>
       <div class="where">${whereHtml}</div>
       <div class="tags">
@@ -99,6 +100,14 @@ function chartSvg(points) {
   </svg>`;
 }
 
+function openFromHash() {
+  const m = location.hash.match(/^#juego=(.+)$/);
+  if (!m) return;
+  const d = data.deals.find((x) => x.key === decodeURIComponent(m[1]));
+  if (d) openDetail(d);
+}
+window.addEventListener('hashchange', () => data && openFromHash());
+
 async function openDetail(d) {
   const dlg = $('#detail');
   const regions = d.regions
@@ -111,7 +120,7 @@ async function openDetail(d) {
     <div class="d-head">
       ${d.img ? `<img src="${esc(d.img)}" alt="">` : ''}
       <div>
-        <h2>${esc(d.title)}</h2>
+        <h2>${esc(d.title)}</h2>${d.titleJp ? `<p class="jp">${esc(d.titleJp)}</p>` : ''}
         <div class="price"><span class="now">${money(d.pen)}</span><s>${money(d.penRegular)}</s><span class="cut">-${d.cut}%</span></div>
         <p class="muted">${esc(d.platLabel)} · Metacritic ${d.score ?? 'sin nota'} · más bajo visto ${money(d.low)}${d.plus ? ' · requiere PS Plus' : ''}</p>
       </div>
@@ -125,6 +134,7 @@ async function openDetail(d) {
     ${regions}
     <div class="d-sec"><h3>Historial de precio (S/)</h3><div id="hist">Cargando…</div></div>`;
   dlg.querySelector('.d-close').onclick = () => dlg.close();
+  dlg.onclose = () => { if (location.hash) history.replaceState(null, '', location.pathname + location.search); };
   dlg.showModal();
   if (!history) history = await fetch(`data/history.json?t=${Date.now()}`).then((r) => r.json()).catch(() => ({}));
   const h = dlg.querySelector('#hist');

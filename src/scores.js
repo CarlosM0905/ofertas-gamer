@@ -5,11 +5,12 @@ const KEY = '1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u'; // clave pública que usa la web
 const DAY = 86400000;
 
 /** Elige el resultado de Metacritic que corresponde al título buscado. */
-export function pickMatch(norm, items) {
+export function pickMatch(norm, items, strict = false) {
   const games = items.filter((i) => i.type === 'game-title');
   const scored = games.map((i) => ({ i, n: normalizeTitle(i.title) }));
   const exact = scored.find((x) => x.n === norm);
   if (exact) return exact.i;
+  if (strict) return null;
   const close = scored.find((x) => {
     const [a, b] = x.n.length < norm.length ? [x.n, norm] : [norm, x.n];
     return a.length >= 4 && b.startsWith(a) && b.length - a.length <= 12;
@@ -17,10 +18,10 @@ export function pickMatch(norm, items) {
   return close?.i || null;
 }
 
-async function lookup(norm) {
+async function lookup(norm, strict) {
   const url = `${SEARCH}/${encodeURIComponent(norm)}/web?apiKey=${KEY}&componentType=Game&mcoTypeId=13&limit=8`;
   const res = await fetchJson(url, { ua: BROWSER_UA, retries: 2 });
-  const hit = pickMatch(norm, res.data?.items || []);
+  const hit = pickMatch(norm, res.data?.items || [], strict);
   return {
     s: hit?.criticScoreSummary?.score ?? null,
     slug: hit?.slug ?? null,
@@ -32,7 +33,7 @@ async function lookup(norm) {
  * Completa el caché de notas para los títulos dados. Solo busca los que no
  * están o los que no tenían nota y ya pasaron `retryDays`.
  */
-export async function fillScores(cache, titles, { max, retryDays, save }) {
+export async function fillScores(cache, titles, { max, retryDays, save, strict = new Set() }) {
   const pending = [];
   const seen = new Set();
   for (const t of titles) {
@@ -48,7 +49,7 @@ export async function fillScores(cache, titles, { max, retryDays, save }) {
   let lastError = '';
   await pool(todo, 6, async (norm) => {
     try {
-      cache[norm] = await lookup(norm);
+      cache[norm] = await lookup(norm, strict.has(norm));
     } catch (e) {
       errors++;
       lastError = e.message;

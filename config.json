@@ -7,13 +7,26 @@
     "precioMaxBajaPEN": 12
   },
   "pc": {
-    "tiendas": [1, 7, 25, 11, 15, 3, 23, 27, 8],
+    "tiendas": [
+      1,
+      7,
+      25,
+      11,
+      15,
+      3,
+      23,
+      27,
+      8
+    ],
     "paginas": 12
   },
   "ps": {
     "categoria": "3f772501-f6f8-49b7-abac-874a88ca4897",
     "locale": "es-PE",
-    "plataformas": ["PS5", "PS4"]
+    "plataformas": [
+      "PS5",
+      "PS4"
+    ]
   },
   "preciosSwitch": {
     "budget": 200,
@@ -26,5 +39,9 @@
   },
   "telegram": {
     "maxPorMensaje": 25
+  },
+  "traduccion": {
+    "maxPorCorrida": 400,
+    "lote": 60
   }
 }

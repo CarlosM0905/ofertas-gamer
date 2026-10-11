@@ -86,3 +86,9 @@ test('splitMessage respeta el límite de Telegram sin cortar avisos', async () =
   assert.ok(parts.every((p) => p.length <= 1000));
   assert.equal(parts.join('\n\n'), text);
 });
+
+test('títulos traducidos solo aceptan coincidencia exacta en Metacritic', () => {
+  const items = [{ type: 'game-title', title: 'Monster Hunter: World', criticScoreSummary: { score: 90 } }];
+  assert.equal(pickMatch('monster hunter worlds', items, true), null);
+  assert.equal(pickMatch('monster hunter world', items, true).criticScoreSummary.score, 90);
+});

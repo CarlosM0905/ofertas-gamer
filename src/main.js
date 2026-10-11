@@ -6,6 +6,7 @@ import { fetchPcDeals, fetchPcHistoricLows } from './sources/pc.js';
 import { fetchPlayStationDeals } from './sources/playstation.js';
 import { fetchAmericasDeals, fetchEuropeDeals, fetchJapanDeals, mergeZones, fetchRegionPrices, cachedPrices, COUNTRY_NAMES } from './sources/nintendo.js';
 import { send, esc, readCommands, telegramEnabled } from './telegram.js';
+import { translateJapaneseTitles } from './translate.js';
 
 const DRY = process.argv.includes('--dry');
 const PANEL_URL = process.env.PANEL_URL || '';
@@ -15,6 +16,7 @@ const P = {
   history: 'docs/data/history.json',
   scores: 'state/scores.json',
   prices: 'state/prices.json',
+  jpTitles: 'state/jp-titles.json',
   notified: 'state/notified.json',
   state: 'state/state.json',
   wishlist: 'state/wishlist.json',
@@ -28,6 +30,7 @@ async function main() {
   const config = await readJson('config.json');
   const scores = await readJson(P.scores, {});
   const priceCache = await readJson(P.prices, {});
+  const jpTitles = await readJson(P.jpTitles, {});
   const notified = await readJson(P.notified, {});
   const state = await readJson(P.state, { tgOffset: 0, rates: null, lastSummary: null, baseline: false });
   let wishlist = await readJson(P.wishlist, []);
@@ -83,6 +86,24 @@ async function main() {
     safe('Switch Europa', fetchEuropeDeals),
     safe('Switch Japón', fetchJapanDeals),
   ]);
+  // Títulos solo en japonés: pedir el nombre oficial en inglés para poder emparejarlos.
+  const jpOnly = swJp.filter((i) => !i.keys.length);
+  try {
+    const tr = await translateJapaneseTitles(jpTitles, jpOnly.map((i) => i.title), config.traduccion);
+    if (tr.omitido) log(`Japón: ${jpOnly.length} títulos solo en japonés (sin Azure OpenAI configurado, no se traducen)`);
+    else log(`Japón: ${tr.traducidos} títulos traducidos, ${tr.pendientes} pendientes`);
+  } catch (e) {
+    errors.push(`traducción: ${e.message}`);
+  }
+  for (const i of jpOnly) {
+    const en = jpTitles[i.title]?.en;
+    if (en) {
+      i.titleEn = en;
+      i.keys = [normalizeTitle(en)];
+    }
+  }
+  // Títulos traducidos por IA: en Metacritic solo se aceptan coincidencias exactas.
+  const translatedKeys = new Set(jpOnly.filter((i) => i.titleEn).map((i) => i.keys[0]));
   const switchGames = mergeZones(swAm, swEu, swJp);
   log(`Switch: ${switchGames.length} juegos tras juntar zonas`);
 
@@ -105,7 +126,7 @@ async function main() {
     ...[...psByTitle.values()].filter((d) => cut(d.usd, d.usdRegular) >= minCut).map((d) => d.title),
     ...switchGames.filter((g) => g.keys.length).map((g) => g.keys[0]),
   ];
-  const sr = await fillScores(scores, titles, { max: Number(process.env.NOTAS_MAX) || config.notas.maxBusquedasPorCorrida, retryDays: config.notas.reintentarSinNotaDias, save: () => writeJson(P.scores, scores) });
+  const sr = await fillScores(scores, titles, { max: Number(process.env.NOTAS_MAX) || config.notas.maxBusquedasPorCorrida, retryDays: config.notas.reintentarSinNotaDias, save: () => writeJson(P.scores, scores), strict: translatedKeys });
   log(`Metacritic: ${sr.buscados} buscados, ${sr.pendientes} pendientes para la próxima, ${sr.errores} errores`);
 
   // ---------- Armar ofertas ----------
@@ -166,7 +187,7 @@ async function main() {
     const sc = g.keys.length ? scoreOf(scores, g.keys[0]) : { score: null, url: null };
     pushDeal({
       key: `sw:${g.platform === 'Switch 2' ? 's2' : 's1'}:${g.keys[0] || g.nsuids.japon}`, plat: 'switch', platLabel: g.platform,
-      title: g.title, img: g.img, url: g.urls[best.zone] || Object.values(g.urls)[0], urls: g.urls,
+      title: g.title, titleJp: g.titleJp, img: g.img, url: g.urls[best.zone] || Object.values(g.urls)[0], urls: g.urls,
       pen: best.pen, penRegular: best.penRegular, cut: best.cut, best: best.c, bestName: best.name,
       pe: regions.find((r) => r.c === 'PE')?.pen ?? null,
       score: sc.score, scoreUrl: sc.url, regions,
@@ -253,6 +274,7 @@ async function main() {
   await writeJson(P.history, history);
   await writeJson(P.scores, scores);
   await writeJson(P.prices, priceCache);
+  await writeJson(P.jpTitles, jpTitles, true);
   await writeJson(P.notified, notified, true);
   await writeJson(P.state, state, true);
   await writeJson(P.wishlist, wishlist, true);
@@ -266,7 +288,7 @@ function formatDeal(d) {
   const where = d.plat === 'switch' ? ` en ${d.bestName}${d.pe != null && d.best !== 'PE' ? ` (Perú ${money(d.pe)})` : ''}` : d.store ? ` en ${d.store}` : '';
   const low = d.isLow ? ' · 📉 mínimo histórico' : '';
   const plus = d.plus ? ' · requiere PS Plus' : '';
-  return `${TIER_ICON[d.tier] || ''} <b>${esc(d.title)}</b> [${d.platLabel}]${nota}\n<s>${money(d.penRegular)}</s> → <b>${money(d.pen)}</b> (-${d.cut}%)${esc(where)}${low}${plus}\n<a href="${d.url}">Ir a la tienda</a>`;
+  return `${TIER_ICON[d.tier] || ''} <b>${esc(d.title)}</b> [${d.platLabel}]${nota}\n<s>${money(d.penRegular)}</s> → <b>${money(d.pen)}</b> (-${d.cut}%)${esc(where)}${low}${plus}\n<a href="${d.url}">Ir a la tienda</a>${PANEL_URL ? ` · <a href="${PANEL_URL}#juego=${encodeURIComponent(d.key)}">Comparar precios</a>` : ''}`;
 }
 
 main().catch((e) => {

@@ -152,11 +152,12 @@ export function mergeZones(americas, europa, japon) {
     if (game && game.nsuids[item.zone]) game = null; // ya tiene esa zona: es otro juego con nombre parecido
     if (!game) {
       if (!item.keys.length && item.zone !== 'japon') return;
-      game = { title: item.title, platform: item.platform, img: item.img, urls: {}, nsuids: {}, catalog: {}, keys: [] };
+      game = { title: item.titleEn || item.title, platform: item.platform, img: item.img, urls: {}, nsuids: {}, catalog: {}, keys: [] };
       games.push(game);
     }
     game.nsuids[item.zone] = item.nsuid;
     game.urls[item.zone] = item.url;
+    if (item.zone === 'japon' && /[぀-ヿ一-鿿]/.test(item.title)) game.titleJp = item.title;
     game.catalog[item.zone] = item.catalog || {};
     if (!game.img) game.img = item.img;
     for (const k of item.keys) {
