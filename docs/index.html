@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ofertas Gamer</title>
+  <meta name="description" content="Ofertas de juegos buenos en PC, PS5 y Switch">
+  <meta name="theme-color" content="#0e1116">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="icon.svg" alt="" width="28" height="28">
+      <div>
+        <h1>Ofertas Gamer</h1>
+        <p id="meta" class="muted">Cargando…</p>
+      </div>
+    </div>
+    <input id="q" type="search" placeholder="Buscar juego…" autocomplete="off">
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-plat="all" class="on">Todas</button>
+    <button data-plat="pc">PC</button>
+    <button data-plat="ps">PlayStation</button>
+    <button data-plat="switch">Switch</button>
+  </nav>
+
+  <section class="filters">
+    <div class="chips" id="tiers">
+      <button data-tier="ok" class="on">Cumplen mis reglas</button>
+      <button data-tier="top">🏆 Nota 80+</button>
+      <button data-tier="buena">👍 Buenas y baratas</button>
+      <button data-tier="barata">🪙 Regalo</button>
+      <button data-tier="wishlist">⭐ Mi lista</button>
+      <button data-tier="all">Todo con nota</button>
+    </div>
+    <div class="row">
+      <label>Orden
+        <select id="sort">
+          <option value="rel">Recomendado</option>
+          <option value="score">Mejor nota</option>
+          <option value="price">Más barato</option>
+          <option value="cut">Mayor descuento</option>
+          <option value="new">Más recientes</option>
+        </select>
+      </label>
+      <label>Hasta S/<input id="max" type="number" min="0" step="5" placeholder="∞"></label>
+      <label class="check"><input id="low" type="checkbox"> Solo mínimo histórico</label>
+      <label class="check"><input id="noplus" type="checkbox"> Ocultar PS Plus</label>
+    </div>
+  </section>
+
+  <main>
+    <p id="count" class="muted"></p>
+    <div id="grid" class="grid"></div>
+    <p id="empty" class="empty" hidden>No hay ofertas con esos filtros.</p>
+  </main>
+
+  <dialog id="detail"></dialog>
+
+  <footer class="muted">
+    Precios convertidos a soles con el tipo de cambio del día. Argentina y EE.UU. no incluyen impuestos.
+    Notas de Metacritic. Datos: CheapShark, PlayStation Store Perú y eShop de Nintendo.
+    <br>Agrega juegos a tu lista desde Telegram con <code>/seguir nombre</code>.
+  </footer>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

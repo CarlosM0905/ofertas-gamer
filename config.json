@@ -1,0 +1,30 @@
+{
+  "reglas": {
+    "descuentoMinimo": 20,
+    "notaTop": 80,
+    "notaMedia": 60,
+    "precioMaxMediaPEN": 35,
+    "precioMaxBajaPEN": 12
+  },
+  "pc": {
+    "tiendas": [1, 7, 25, 11, 15, 3, 23, 27, 8],
+    "paginas": 12
+  },
+  "ps": {
+    "categoria": "3f772501-f6f8-49b7-abac-874a88ca4897",
+    "locale": "es-PE",
+    "plataformas": ["PS5", "PS4"]
+  },
+  "preciosSwitch": {
+    "budget": 200,
+    "ttlHours": 6,
+    "pauseMs": 350
+  },
+  "notas": {
+    "maxBusquedasPorCorrida": 700,
+    "reintentarSinNotaDias": 20
+  },
+  "telegram": {
+    "maxPorMensaje": 25
+  }
+}
