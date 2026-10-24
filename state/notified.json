@@ -621,7 +621,7 @@
   "sw:s1:gearshifters": 8.5,
   "sw:s1:empty shell": 10.56,
   "sw:s1:idoldays": 9.29,
-  "sw:s1:tower of babel": 10.87,
+  "sw:s1:tower of babel": 3.47,
   "sw:s1:the amazing shinsengumi heroes in love": 9.8,
   "sw:s1:new joe mac caveman ninja": 10.98,
   "sw:s1:robophobik": 8.52,
@@ -1266,7 +1266,7 @@
   "sw:s1:is this seat taken": 9.95,
   "sw:s1:steredenn binary stars": 11.69,
   "sw:s1:discounty": 13.04,
-  "sw:s1:five dates": 15.6,
+  "sw:s1:five dates": 13.84,
   "sw:s1:duck detective the secret salami": 16.11,
   "sw:s1:the lara croft collection": 18.07,
   "sw:s1:beyond good evil 20th anniversary edition": 23,
@@ -3166,7 +3166,6 @@
   "pc:210690": 6.85,
   "pc:219608": 6.85,
   "pc:227813": 12.01,
-  "pc:173872": 8.57,
   "pc:157072": 27.36,
   "pc:641": 3.41,
   "pc:146198": 3.41,
@@ -3175,7 +3174,7 @@
   "sw:s1:adventure time pirates of the enchiridion": 27.84,
   "pc:166248": 8.57,
   "pc:202820": 4.27,
-  "sw:s1:doug hates his job": 6.85,
+  "sw:s1:doug hates his job": 5.16,
   "sw:s1:skull island rise of kong": 6.76,
   "sw:s1:island farmer": 6.31,
   "sw:s1:nascar arcade rush": 6.31,
@@ -3227,5 +3226,7 @@
   "sw:s1:easy flight simulator": 10.97,
   "sw:s1:my lovely empress": 11.02,
   "sw:s1:hebereke enjoy edition": 11.23,
-  "sw:s1:hover racer": 11.66
+  "sw:s1:hover racer": 11.66,
+  "pc:93451": 5.13,
+  "sw:s1:dead or school": 26.09
 }
